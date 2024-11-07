@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'library',
     'rest_framework_simplejwt',
+    'authentication.apps.AuthenticationConfig',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -160,7 +161,7 @@ SIMPLE_JWT = {
 REST_AUTH_TOKEN_MODEL = None
 REST_USE_JWT = True
 REST_AUTH_SERIALIZERS = {
-    'LOGIN_SERIALIZER': 'auth.serializers.CustomLoginSerializer',
+    'LOGIN_SERIALIZER': 'authentication.serializers.CustomLoginSerializer',
 }
-REST_AUTH_REGISTER_SERIALIZER = 'auth.serializers.CustomRegisterSerializer'
+REST_AUTH_REGISTER_SERIALIZER = 'authentication.serializers.CustomRegisterSerializer'
 REPOSITORY_PATH = os.path.join(BASE_DIR, 'repository')
