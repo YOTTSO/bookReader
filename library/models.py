@@ -1,6 +1,7 @@
 import os
 from django.db import models
 from django.core.validators import RegexValidator
+from django.contrib.auth.models import User
 
 my_validator = RegexValidator(r"[a-zA-Z0-9]+\.(txt|pdf|fb2|doc)", "Your book must be in format = filename.file_format")
 
@@ -20,4 +21,20 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+
+class UserBookStatus(models.Model):
+    STATUS_CHOICES = [
+        ('reading', 'Читаю'),
+        ('completed', 'Прочитано'),
+        ('planned', 'Запланировано'),
+        ('abandoned', 'Заброшено')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='book_statuses')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='user_statuses')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'book')
 
