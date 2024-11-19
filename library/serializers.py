@@ -14,3 +14,16 @@ class BookSerializer(serializers.ModelSerializer):
         if book_status:
             return book_status.status
         return None
+
+class BooksListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['title', 'author', 'genre', 'publication_date', 'tags', 'file']
+
+'''
+    from library.models import Book
+    from library.serializers import BooksListSerializer
+    books = Book.objects.all()
+    print((BooksListSerializer(books, many=True)).data)
+
+'''
