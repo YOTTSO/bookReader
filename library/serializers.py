@@ -1,9 +1,16 @@
 from rest_framework import serializers
-from .models import Book, UserBookStatus
+from .models import Book, UserBookStatus, Tag
 
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['name']
 
 class BookSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True)
+
     class Meta:
         model = Book
         fields = ['title', 'author', 'genre', 'publication_date', 'tags', 'file', 'status']
@@ -16,6 +23,7 @@ class BookSerializer(serializers.ModelSerializer):
         return None
 
 class BooksListSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
     class Meta:
         model = Book
         fields = ['title', 'author', 'genre', 'publication_date', 'tags', 'file']

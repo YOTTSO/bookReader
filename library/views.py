@@ -45,8 +45,7 @@ class BookSearch(APIView):
             formatted_genre = genre.replace('_', ' ')
             books = books.filter(genre__icontains=formatted_genre)
         if tags:
-            formatted_tags = tags.replace('_', ' ')
-            books = books.filter(tags__contains=formatted_tags)
+            books = books.filter(tags__name=tags)
         if not books.exists():
             return Response({"message": "No books found matching the criteria."}, status=status.HTTP_404_NOT_FOUND)
 
