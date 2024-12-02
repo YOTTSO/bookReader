@@ -1,8 +1,11 @@
+from django.http import Http404
 from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+
+from .epub_reader import extract_epub_content
 from .models import Book, UserBookStatus
 from .serializers import BookSerializer, BooksListSerializer
 
@@ -68,3 +71,21 @@ class BookStatusUpdateView(APIView):
             defaults={'status': status}
         )
         return Response({"status": book_status.status})
+
+
+class BookContentView(APIView):
+    def get(self, request, book_name, chapter=None):
+        try:
+            book = Book.objects.get(title=book_name)
+            file_path = book.file.path
+            chapters = extract_epub_content(file_path)
+
+            if chapter is not None:
+                chapter = int(chapter)
+                if chapter < 1 or chapter > len(chapters):
+                    return Response({"error": "Chapter not found."}, status=404)
+                return Response({"chapter": chapters[chapter - 1]})
+
+            return Response({"chapters": len(chapters), "titles": [f"Chapter {i + 1}" for i in range(len(chapters))]})
+        except Book.DoesNotExist:
+            raise Http404("Book not found.")

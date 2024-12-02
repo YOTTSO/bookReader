@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BookCreateView, BookDetailView, BookStatusUpdateView, BooksList, BookSearch
+from .views import BookCreateView, BookDetailView, BookStatusUpdateView, BooksList, BookSearch, BookContentView
 
 urlpatterns = [
     path('upload/', BookCreateView.as_view(), name='BookCreate'),
@@ -7,4 +7,7 @@ urlpatterns = [
     path('books/list/', BooksList.as_view(), name='books-list'),
     path('books/search/', BookSearch.as_view(), name='books-search'),
     path('books/<str:title>/update_status/', BookStatusUpdateView.as_view(), name='book-detail'),
+    path('books/<str:book_name>/content/', BookContentView.as_view(), name='book-content'),
+    path('books/<str:book_name>/content/<int:chapter>/', BookContentView.as_view(), name='book-chapter'),
+
 ]
