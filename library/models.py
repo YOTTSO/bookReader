@@ -1,6 +1,6 @@
 import os
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
 my_validator = RegexValidator(r"[a-zA-Z0-9]+\.(txt|pdf|fb2|doc)", "Your book must be in format = filename.file_format")
@@ -17,6 +17,15 @@ class Book(models.Model):
     genre = models.CharField(max_length=100)
     publication_date = models.DateField()
     tags = models.ManyToManyField(Tag, related_name="books")
+
+    rating = models.FloatField(
+        default=0.0,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(5.0)
+        ],
+        help_text="Рейтинг книги от 0 до 5"
+    )
     file = models.FileField(upload_to="./repository/")
 
     def save(self, *args, **kwargs):
@@ -32,7 +41,8 @@ class UserBookStatus(models.Model):
         ('reading', 'Читаю'),
         ('completed', 'Прочитано'),
         ('planned', 'Запланировано'),
-        ('abandoned', 'Заброшено')
+        ('abandoned', 'Заброшено'),
+        ('favorite', 'Избранное')
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='book_statuses')
@@ -42,4 +52,7 @@ class UserBookStatus(models.Model):
 
     class Meta:
         unique_together = ('user', 'book')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.book.title} - {self.status}"
 

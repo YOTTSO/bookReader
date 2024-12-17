@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .epub_reader import extract_epub_content
 from .models import Book, UserBookStatus
-from .serializers import BookSerializer, BooksListSerializer
+from .serializers import BookSerializer, BooksListSerializer, UserBookStatusSerializer
 
 
 class BookCreateView(APIView):
@@ -89,3 +89,31 @@ class BookContentView(APIView):
             return Response({"chapters": len(chapters), "titles": [f"Chapter {i + 1}" for i in range(len(chapters))]})
         except Book.DoesNotExist:
             raise Http404("Book not found.")
+
+class UserBooksByStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, status):
+        user = request.user
+        books = UserBookStatus.objects.filter(user=user, status=status).select_related('book')
+        serializer = UserBookStatusSerializer(books, many=True)
+        return Response(serializer.data)
+
+class UpdateBookRatingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, book_id):
+        try:
+            book = Book.objects.get(id=book_id)
+        except Book.DoesNotExist:
+            return Response({"error": "Книга не найдена"}, status=404)
+
+        new_rating = request.data.get('rating')
+        if new_rating is None or not (0.0 <= float(new_rating) <= 5.0):
+            return Response({"error": "Рейтинг должен быть от 0 до 5"}, status=400)
+        if book.rating is None:
+            book.rating = new_rating
+        else:
+            book.rating = (float(new_rating) + float(book.rating)) / 2
+        book.save()
+        return Response({"message": "Рейтинг обновлён", "new_rating": book.rating})

@@ -13,7 +13,7 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ['title', 'author', 'genre', 'publication_date', 'tags', 'file', 'status']
+        fields = ['id', 'title', 'author', 'genre', 'publication_date', 'tags', 'file', 'status', 'rating']
 
     def get_status(self, obj):
         user = self.context['request'].user
@@ -21,6 +21,13 @@ class BookSerializer(serializers.ModelSerializer):
         if book_status:
             return book_status.status
         return None
+
+class UserBookStatusSerializer(serializers.ModelSerializer):
+    book = BookSerializer()
+
+    class Meta:
+        model = UserBookStatus
+        fields = ['book', 'status']
 
 class BooksListSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
